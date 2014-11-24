@@ -68,12 +68,19 @@ public class UnderFileSystemHdfs extends UnderFileSystem {
       tConf = new Configuration();
     }
     String glusterfsPrefix = "glusterfs:///";
+    String orangefsPrefix = "ofs://";
     if (fsDefaultName.startsWith(glusterfsPrefix)) {
       tConf.set("fs.glusterfs.impl", CommonConf.get().UNDERFS_GLUSTERFS_IMPL);
       tConf.set("mapred.system.dir", CommonConf.get().UNDERFS_GLUSTERFS_MR_DIR);
       tConf.set("fs.glusterfs.volumes", CommonConf.get().UNDERFS_GLUSTERFS_VOLUMES);
       tConf.set("fs.glusterfs.volume.fuse." + CommonConf.get().UNDERFS_GLUSTERFS_VOLUMES,
           CommonConf.get().UNDERFS_GLUSTERFS_MOUNTS);
+    } else if (fsDefaultName.startsWith(orangefsPrefix)) {
+      tConf.set("fs.ofs.impl", CommonConf.get().UNDERFS_OFS_IMPL);
+      tConf.set("fs.ofs.systems", CommonConf.get().UNDERFS_FS_OFS_SYSTEMS);
+      tConf.set("fs.ofs.mntLocations", CommonConf.get().UNDERFS_FS_OFS_MNTLOCATIONS);
+      // tConf.set("fs.ofs.impl.disable.cache",
+      // System.getProperty("fs.ofs.impl.disable.cache", "false"));
     } else {
       tConf.set("fs.hdfs.impl", CommonConf.get().UNDERFS_HDFS_IMPL);
 

@@ -15,6 +15,11 @@
 
 package tachyon.hadoop;
 
+import java.io.IOException;
+import java.net.URI;
+
+import org.apache.hadoop.conf.Configuration;
+
 import tachyon.Constants;
 
 /**
@@ -23,6 +28,13 @@ import tachyon.Constants;
  * Tachyon API in tachyon.client package.
  */
 public final class TFS extends AbstractTFS {
+
+  public TFS() {
+  }
+
+  public TFS(URI mUri, Configuration conf) throws IOException {
+    this.initialize(mUri, conf);
+  }
 
   @Override
   public String getScheme() {
