@@ -35,7 +35,7 @@ public class CommonConf extends Utils {
   private static CommonConf sCommonConf = null;
 
   public static final ImmutableList<String> DEFAULT_HADOOP_UFS_PREFIX = ImmutableList.of("hdfs://",
-      "s3://", "s3n://", "glusterfs:///");
+      "s3://", "s3n://", "glusterfs:///", "ofs://");
 
   private static final String DEFAULT_HOME = "/mnt/tachyon_default_home";
   /**
@@ -59,6 +59,13 @@ public class CommonConf extends Utils {
   public final String UNDERFS_WORKERS_FOLDER;
 
   public final String UNDERFS_HDFS_IMPL;
+
+  // OrangeFS specifications
+  public final String UNDERFS_OFS_IMPL;
+  public final String UNDERFS_FS_OFS_SYSTEMS;
+  public final String UNDERFS_FS_OFS_MNTLOCATIONS;
+
+  // GlusterFS specifications
   public final String UNDERFS_GLUSTERFS_IMPL;
   public final String UNDERFS_GLUSTERFS_VOLUMES;
   public final String UNDERFS_GLUSTERFS_MOUNTS;
@@ -99,6 +106,16 @@ public class CommonConf extends Utils {
         getProperty("tachyon.workers.folder", UNDERFS_ADDRESS + "/tachyon/workers");
     UNDERFS_HDFS_IMPL =
         getProperty("tachyon.underfs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
+
+    // OrangeFS specifications
+    UNDERFS_OFS_IMPL =
+        getProperty("tachyon.underfs.ofs.impl", "org.apache.hadoop.fs.ofs.OrangeFileSystem");
+    UNDERFS_FS_OFS_SYSTEMS =
+        getProperty("fs.ofs.systems", "localhost-orangefs:3333");
+    UNDERFS_FS_OFS_MNTLOCATIONS =
+        getProperty("fs.ofs.mntLocations", "/orangefs");
+
+    // GlusterFS specifications
     UNDERFS_GLUSTERFS_IMPL =
         getProperty("tachyon.underfs.glusterfs.impl",
             "org.apache.hadoop.fs.glusterfs.GlusterFileSystem");
