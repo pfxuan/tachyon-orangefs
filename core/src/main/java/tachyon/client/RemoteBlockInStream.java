@@ -13,17 +13,8 @@
 
 package tachyon.client;
 
-import java.io.InputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import tachyon.Constants;
 import tachyon.UnderFileSystem;
 import tachyon.conf.UserConf;
@@ -32,6 +23,14 @@ import tachyon.thrift.NetAddress;
 import tachyon.util.CommonUtils;
 import tachyon.util.NetworkUtils;
 import tachyon.worker.nio.DataServerMessage;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.util.List;
 
 /**
  * BlockInStream for remote block.
@@ -193,15 +192,17 @@ public class RemoteBlockInStream extends BlockInStream {
     int bytesLeft = len;
     // While we still have bytes to read, make sure the buffer is set to read the byte at mBlockPos.
     // If we fail to set mCurrentBuffer, we stream the rest from the underfs
-    while (bytesLeft > 0 && updateCurrentBuffer()) {
-      int bytesToRead = (int) Math.min(bytesLeft, mCurrentBuffer.remaining());
-      mCurrentBuffer.get(b, off, bytesToRead);
-      if (mRecache) {
-        mBlockOutStream.write(b, off, bytesToRead);
+    if (mBlockInfo.getLocations().get(0).mSecondaryPort != -1) {
+      while (bytesLeft > 0 && updateCurrentBuffer()) {
+        int bytesToRead = (int) Math.min(bytesLeft, mCurrentBuffer.remaining());
+        mCurrentBuffer.get(b, off, bytesToRead);
+        if (mRecache) {
+          mBlockOutStream.write(b, off, bytesToRead);
+        }
+        off += bytesToRead;
+        bytesLeft -= bytesToRead;
+        mBlockPos += bytesToRead;
       }
-      off += bytesToRead;
-      bytesLeft -= bytesToRead;
-      mBlockPos += bytesToRead;
     }
     if (bytesLeft > 0) {
       // We failed to read everything from mCurrentBuffer, so we need to stream the rest from the
@@ -361,7 +362,8 @@ public class RemoteBlockInStream extends BlockInStream {
       long skipped = mCheckpointInputStream.skip(mBlockPos - mCheckpointPos);
       if (skipped <= 0) {
         throw new IOException("Failed to skip to the position " + mBlockPos + " for block "
-            + mBlockInfo);
+            + mBlockInfo + "; checkpoint position is: " + mCheckpointPos + "; file position "
+            + "is: " + mCheckpointInputStream.available());
       }
       mCheckpointPos += skipped;
     }
